@@ -1,0 +1,8 @@
+const fs=require('node:fs');const path=require('node:path');const E=require('./engine.js');
+const buffer=fs.readFileSync(path.join(__dirname,'btc.bin'));const raw=E.readBinary(buffer.buffer.slice(buffer.byteOffset,buffer.byteOffset+buffer.byteLength));const baseline=JSON.parse(fs.readFileSync(path.join(__dirname,'baseline.json'),'utf8'));
+const ctx=E.prepare(raw,E.defaults);const summaries=[];
+for(let k=1;k<=10;k++){const s=E.makeSignals(ctx,k),r=E.simulate(raw,s.signals,k,E.defaults),expected=baseline.summaries[k-1];for(const field of ['trades','return_pct','max_dd_pct','mean_r']){const got=r.summary[field],want=expected[field];if(want!=null&&Math.abs(got-want)>1e-7)throw Error(`Parity mismatch S${k} ${field}: ${got} vs ${want}`)}console.log(`S${k}: ${r.summary.trades} trades, ${r.summary.return_pct.toFixed(4)}% · Python parity OK`);for(const t of r.trades){if(t.planned_rr<3-1e-8)throw Error('RR below 3');if(t.qty*t.entry*(1+E.defaults.fee/100)>t.equity_before+1e-8)throw Error('Cash cap');if(Math.abs(t.equity_before+t.pnl-t.equity_after)>1e-8)throw Error('Accounting')}summaries.push(r.summary)}
+for(const tf of ['15m','4h','1d']){const p={...E.defaults,signalTF:tf,start:'2025-01-01',end:'2025-06-30',rsiFilter:true,rsiMin:35,rsiMax:65,fee:.15,rr:4,risk:.5};const c=E.prepare(raw,p);const s=E.makeSignals(c,1);const r=E.simulate(raw,s.signals,1,p);console.log(`Custom ${tf}: ${r.summary.trades} trades; valid settings work`)}
+let rejected=false;try{E.validate({...E.defaults,rr:2})}catch(e){rejected=true}if(!rejected)throw Error('Bad settings accepted');
+fs.writeFileSync(path.join(__dirname,'engine-audit.json'),JSON.stringify({passed:true,summaries},null,2));console.log('Engine audit passed');
+

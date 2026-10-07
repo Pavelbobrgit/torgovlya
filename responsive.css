@@ -1,0 +1,5 @@
+#toggleSettings{display:none}.overlay-legend{color:#8e9bb0;font-size:12px;display:flex;gap:15px;padding:9px 20px 0;flex-wrap:wrap}
+@media(max-width:800px){#toggleSettings{display:block}.settings:not(.expanded)>*:not(.section-head):not(#strategy):not(label[for=strategy]):not(.run-actions){display:none}.settings:not(.expanded){gap:3px 15px;padding:16px 20px}.settings:not(.expanded) .run-actions{margin-top:10px;gap:8px}.settings:not(.expanded) .run-actions .button{margin:0}.view-head{margin-bottom:15px}.stats{padding:16px 0 18px;gap:13px}.overlay-legend{padding:8px 14px 0;font-size:12px}.chart-footer span{line-height:1.5}}
+
+@media(max-width:800px){.settings:not(.expanded)>.section-head:not(:first-child){display:none}}
+.indicator-bar label{font-size:14px}td{font-size:14px}th{font-size:14px}
